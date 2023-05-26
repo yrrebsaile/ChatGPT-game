@@ -1,0 +1,101 @@
+import pygame
+import random
+
+# Initialize the game
+pygame.init()
+
+# Set up the display
+screen = pygame.display.set_mode((800, 600))
+pygame.display.set_caption("Polygon Game")
+
+# Define colors
+WHITE = (255, 255, 255)
+RED = (255, 0, 0)
+GREEN = (0, 255, 0)
+BLUE = (0, 0, 255)
+
+# Define player properties
+player_x = 400
+player_y = 300
+player_size = 20
+
+# Define enemy properties
+enemy_x = random.randint(0, 800)
+enemy_y = random.randint(0, 600)
+enemy_size = 20
+enemy_speed = 2
+
+# Define score
+score = 0
+font = pygame.font.Font(None, 36)
+
+# Define clock for frame rate
+clock = pygame.time.Clock()
+
+# Define game states
+STATE_MENU = 0
+STATE_PLAYING = 1
+STATE_GAME_OVER = 2
+game_state = STATE_MENU
+
+# Game loop
+running = True
+while running:
+    # Handle events
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            running = False
+
+    # Handle game states
+    if game_state == STATE_MENU:
+        # Handle menu events
+        if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
+            game_state = STATE_PLAYING
+            score = 0
+    elif game_state == STATE_PLAYING:
+        # Handle player movement
+        keys = pygame.key.get_pressed()
+        if keys[pygame.K_LEFT]:
+            player_x -= 3
+        if keys[pygame.K_RIGHT]:
+            player_x += 3
+        if keys[pygame.K_UP]:
+            player_y -= 3
+        if keys[pygame.K_DOWN]:
+            player_y += 3
+
+        # Update enemy position
+        if enemy_x < player_x:
+            enemy_x += enemy_speed
+        elif enemy_x > player_x:
+            enemy_x -= enemy_speed
+        if enemy_y < player_y:
+            enemy_y += enemy_speed
+        elif enemy_y > player_y:
+            enemy_y -= enemy_speed
+
+        # Check collision
+        distance = ((player_x - enemy_x) ** 2 + (player_y - enemy_y) ** 2) ** 0.5
+        if distance < player_size + enemy_size:
+            game_state = STATE_GAME_OVER
+            enemy_x = random.randint(0, 800)
+            enemy_y = random.randint(0, 600)
+
+        # Check if player reaches the edge of the screen
+        if player_x <= 0 or player_x >= 800 or player_y <= 0 or player_y >= 600:
+            game_state = STATE_GAME_OVER
+
+        # Check if player collects a power-up
+        powerup_x = random.randint(0, 800)
+        powerup_y = random.randint(0, 600)
+        powerup_size = 15
+        powerup_color = GREEN
+        powerup_distance = ((player_x - powerup_x) ** 2 + (player_y - powerup_y) ** 2) ** 0.5
+        if powerup_distance < player_size + powerup_size:
+            score += 5
+            powerup_x = random.randint(0, 800)
+            powerup_y = random.randint(0, 600)
+
+    elif game_state == STATE_GAME_OVER:
+        # Handle game over events
+        if event.type == pygame.KEYDOWN and event.key == pygame
